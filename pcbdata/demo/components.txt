@@ -1,0 +1,27 @@
+### Module positions - created on 07/30/18 13:46:32 ###
+### Printed by Pcbnew version kicad 4.0.7
+## Unit = mm, Angle = deg.
+## Side : All
+# Ref     Val             Package                                    PosX       PosY       Rot  Side
+C4        22pF            C_0805                                  31.4452   -22.5298   90.0000  bottom
+C5        22pF            C_0805                                  21.1328   -21.9583    0.0000  bottom
+C6        100nf           C_0805                                   3.5001   -20.6197    0.0000  bottom
+Q1        MMBT3904        SOT-23                                  35.8394   -12.8524  270.0000  bottom
+R1        1K              R_0805_HandSoldering                    28.9560   -13.4366  270.0000  bottom
+U1        DS3231          SO-16-L                                  8.4455    -6.3627   90.0000  bottom
+BT1       CR1220          CH291-1220LF                             8.0772   -16.9926    0.0000  top
+C3        47uF            CP_Elec_6.3x5.3                         39.0398    -4.0894  180.0000  top
+D1        1N4148          D_A-405_P7.62mm_Horizontal              42.1132   -22.9616  180.0000  top
+J1        PWR_IN          Pin_Header_Straight_1x02_Pitch2.54mm    45.8216    -5.1308  180.0000  top
+J2        PWR_OUT         Pin_Header_Straight_1x02_Pitch2.54mm    45.8110   -20.1295    0.0000  top
+J3        prg_header      Pin_Header_Straight_1x08_Pitch1.27mm    17.2085   -23.4823  270.0000  top
+J4        FREE            Pin_Header_Straight_1x02_Pitch2.54mm    31.2928    -5.1308  180.0000  top
+J5        bootloader_sel  Pin_Header_Straight_1x03_Pitch1.27mm     4.8692   -23.4417  270.0000  top
+JP1       Relay_sw_mode   Pin_Header_Straight_1x03_Pitch2.54mm    45.8216    -9.9822    0.0000  top
+K1        G5v1            G5V1                                    38.5318   -14.2748   90.0000  top
+R2        4k7             R_0805_HandSoldering                    19.2684    -2.8448  270.0000  top
+R3        4k7             R_0805_HandSoldering                    25.6692    -2.8448  270.0000  top
+R4        10K             R_0805_HandSoldering                    22.4993    -2.8499   90.0000  top
+U2        328             TQFP-32_7x7mm_Pitch0.8mm                26.5684   -12.8524    0.0000  top
+X2        16Mhz           Crystal_HC49-U_Vertical                 29.3116   -21.8948  180.0000  top
+## End
