@@ -65,3 +65,23 @@ Every value is separated with a tab from each other.
 See: pcbdata/config.inc.php
 
 
+
+### Demo files
+
+I added some demo project files. 
+
+*The demo files are not for production use, so the chucky boards are just demo files and can deviate from the current project files from chucky.*
+
+
+
+- Chucky A3660 - board (SprintLayout)
+- Chucky R1200 - board (SprintLayout)
+- Demo file by me (Kicad)
+
+
+
+### Live pages
+
+- http://locator.reamiga.info/ (production files)
+- https://tsb.space/tools/clc/ (demo site)
+
