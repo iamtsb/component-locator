@@ -35,7 +35,8 @@ This make it easy to build a DIY project.
 Export component lists from the supported application to create the components.txt file.
 
 See manual of application how to make this export.
-Kicad export: PCBLayout editor, File, Fabrication Outputs, Footprint Position (.pos) File
+
+Kicad export: *PCBLayout editor, File, Fabrication Outputs, Footprint Position (.pos) File*
 
 
 
