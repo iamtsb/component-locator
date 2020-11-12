@@ -1,0 +1,34 @@
+/*
+ * Component Locator Chucky (PCB component locator)
+ *
+ * Written & released by M.F. Wieland (TSB)
+ *
+ * This project has initially been created for John "Chucky" Hertell
+ *  
+ * Licensed under the MIT License. See LICENSE file in the project root for full license information. 
+ *
+ * This file is part of the Component Locator Chucky
+ */
+
+
+html,body { padding:0; margin:0;background:#000;color:white;width:  100%;height: 100%;font-family: sans-serif; }
+#locatorCanvas { position:absolute;border:1px solid #222;background:#222;left:0px;top:40px;cursor:pointer; }
+#compValues { position:fixed; left:0px;top:0px;font-size:16px;}
+#currentValue {  position:fixed; left:0px;bottom:0px;font-size:16px;color:white;height:40px;line-height:40px;text-align:right; margin-left:20px;font-weight:bold;}
+#credits {  position:fixed; right:0px;bottom:0px;margin-right:20px; }
+#toolbar { position:fixed; top:0px; right:0px; left:0px;height:40px; background-color:#F72229;line-height:40px;padding-left:20px;min-width:980px; }
+#bottombar { position:fixed; bottom:0px; right:0px; left:0px;height:40px; background-color:#304D5E;line-height:40px;padding-left:20px;font-size:12px;min-width:980px; }
+
+/* prevent text selection */
+body {
+	-webkit-touch-callout: none;
+	-webkit-user-select: none;
+	-khtml-user-select: none;
+	-moz-user-select: none;
+	-ms-user-select: none;
+	user-select: none;
+	min-width:980px;
+}
+#loader { position:fixed; top:0px; bottom:0px; left:0px; right:0px; }
+#loader img { position:fixed; top:50%; left:50%; margin-top:-150px; margin-left: -78px; }
+#guru { position:fixed; top:20px; left:50%; margin-left: -250px; }
