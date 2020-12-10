@@ -83,5 +83,4 @@
 	 *
 	*/
 	$component_file_type = 1;
-
 ?>

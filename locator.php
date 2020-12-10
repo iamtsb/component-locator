@@ -5,8 +5,8 @@
 	 *
 	 * Written & released by M.F. Wieland (TSB)
 	 *
-	 * Version 1.3
-	 * Release date: 30-7-2020
+	 * Version 1.4
+	 * Release date: 10-12-2020
 	 *
 	 * This project has initially been created for John "Chucky" Hertell
 	 *  
@@ -91,6 +91,18 @@
 		$GLOBALS['config']['y_correction_bottom'] = ($y_correction_bottom=='') ? 0 : $y_correction_bottom;
 
 		$GLOBALS['config']['default_zoom'] = ($default_zoom=='') ? 0 : $default_zoom;
+		
+		
+		/*
+		 * Check layer image count
+		 */
+		 
+		 $GLOBALS['config']['layer_image_cnt'] = 1;
+		 
+		 if( file_exists($GLOBALS['config']['rootdir_pcbdata']."/BottomView2.png") && file_exists($GLOBALS['config']['rootdir_pcbdata']."/TopView2.png") ) {
+			 
+			 $GLOBALS['config']['layer_image_cnt'] = 2;
+		 }
 	}
 	read_config();
 	
@@ -377,6 +389,8 @@
 		
 		var rootdir_pcbdata = '<?php echo $GLOBALS['config']['rootdir_pcbdata'];?>';
 		
+		var layer_image_cnt = <?php echo $GLOBALS['config']['layer_image_cnt']; ?>;
+		
 		var clicked = false, click_x, click_y;
 		$(document).on({
 			'mousemove': function(e) {
@@ -428,6 +442,21 @@
 				clearInterval( blink_interval_hnd );
 				exec_active_function();
 			}
+		}
+		
+		function switch_layer_image() {
+			
+			var tmp = $(active_img).attr("src");
+			if( tmp.indexOf('2.png')==-1 ) {
+				
+				tmp = tmp.replace('.png','2.png');
+			}
+			else {
+				
+				tmp = tmp.replace('2.png','.png');
+			}
+			
+			$(active_img).attr("src",tmp);
 		}
 		
 		function exec_active_function() {
@@ -681,6 +710,16 @@
 				// select layer
 				select_layer(0);
 			});
+			
+			
+			if( layer_image_cnt==2 ) {
+				
+				$("#switch_layer_image_btn").show();
+			}
+			else {
+				
+				$("#switch_layer_image_btn").hide();
+			}
 		});
 
 	</script>
@@ -732,6 +771,7 @@
 
 		<select id=component_values onchange=prepare_plot_multi_components()></select>	
 		<button id=blink_toggle_btn onclick=blink_toggle()>blink</button>	
+		<button id=switch_layer_image_btn onclick=switch_layer_image()>traces</button>	
 	</div>
 	<div id=bottombar>
 		<span id=credits>

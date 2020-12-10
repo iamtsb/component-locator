@@ -1,6 +1,6 @@
 # **Component Locator Chucky** 
 
-version 1.3 - by M.F. Wieland (TSB)
+version 1.4 - by M.F. Wieland (TSB)
 
 
 
@@ -22,6 +22,13 @@ This make it easy to build a DIY project.
   *component list*
 - pcbdata/[project_folder]/config.inc.php
   *config file, See: pcbdata/config.inc.php*
+
+<u>Optional files</u>
+
+- pcbdata/[project_folder]/BottomView2.png
+  *Second bottom picture of the PCB with traces for example*
+- pcbdata/[project_folder]/TopView2.png
+  *Second top picture of the PCB with traces for example*
 
 
 
@@ -76,7 +83,7 @@ I added some demo project files.
 
 
 
-- Chucky A3660 - board (SprintLayout)
+- Chucky A3660 - board (SprintLayout) (demo with 2 images for each layer)
 - Chucky R1200 - board (SprintLayout)
 - Demo file by me (Kicad)
 

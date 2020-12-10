@@ -1,3 +1,7 @@
+v1.4 - 10-12-2020
+=================
++ added second image option to switch between 2 images for the same layer. For example: normal image and image with only traces.
+
 v1.3
 ====
 + Initial public release
