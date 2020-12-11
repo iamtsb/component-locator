@@ -5,8 +5,8 @@
 	 *
 	 * Written & released by M.F. Wieland (TSB)
 	 *
-	 * Version 1.4
-	 * Release date: 10-12-2020
+	 * Version 1.41
+	 * Release date: 11-12-2020
 	 *
 	 * This project has initially been created for John "Chucky" Hertell
 	 *  
@@ -128,7 +128,7 @@
 	 * PCB component locator code is written by TSB ( M.F. Wieland )
 	 * This project has been created for John "Chucky" Hertell
 	 *
-	 * (c) 2018
+	 * (c) 2018-2020
 	*/
 	
 	
@@ -157,7 +157,7 @@
 </div>
 <div id=bottombar>
 	<span id=credits>
-		Component Locator Chucky<?php echo $version;?> - by TSB ( M.F. Wieland ) - (c) 2018
+		Component Locator Chucky<?php echo $version;?> - by TSB ( M.F. Wieland ) - (c) 2018-2020
 	</span>
 </div>
 
