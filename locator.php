@@ -728,14 +728,14 @@
 			
 			if( layer_image_cnt==2 ) {
 				
-				$("#switch_layer_image_btn").show();
+				$("#layer_alt_image_btn").show();
 				
 				$(tmp_img).attr({ src: rootdir_pcbdata+'/TopView_alt.png' });
 				$(tmp_img).attr({ src: rootdir_pcbdata+'/BottomView_alt.png' });
 			}
 			else {
 				
-				$("#switch_layer_image_btn").hide();
+				$("#layer_alt_image_btn").hide();
 			}
 		});
 
