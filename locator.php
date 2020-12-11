@@ -371,6 +371,10 @@
 		var zoom = default_zoom;
 		
 		var active_layer = 0; //0=top 1=bottom
+		var active_layer_img = "";
+		var layer_image_cnt = <?php echo $GLOBALS['config']['layer_image_cnt']; ?>;
+		var layer_alt_image_active = 0;
+		
 		var active_function = 0; //0=doPlotAll, 1=doPlot
 		
 		var blink_active = false;
@@ -388,8 +392,6 @@
 		var total_components_selected = 0;
 		
 		var rootdir_pcbdata = '<?php echo $GLOBALS['config']['rootdir_pcbdata'];?>';
-		
-		var layer_image_cnt = <?php echo $GLOBALS['config']['layer_image_cnt']; ?>;
 		
 		var clicked = false, click_x, click_y;
 		$(document).on({
@@ -443,20 +445,26 @@
 				exec_active_function();
 			}
 		}
+
+		function set_active_layer_img() {
+			
+			active_layer_img = ( active_layer==0 ) ? rootdir_pcbdata+'/TopView.png' : rootdir_pcbdata+'/BottomView.png';
+			
+			if( layer_alt_image_active==1 ) {
+				
+				active_layer_img = active_layer_img.replace('.png','_alt.png');
+			}
+			
+			exec_active_function();
+		}
 		
-		function switch_layer_image() {
+		function layer_alt_image_toggle() {
 			
-			var tmp = $(active_img).attr("src");
-			if( tmp.indexOf('2.png')==-1 ) {
-				
-				tmp = tmp.replace('.png','2.png');
-			}
-			else {
-				
-				tmp = tmp.replace('2.png','.png');
-			}
+			layer_alt_image_active = (layer_alt_image_active==0) ? 1 : 0;
 			
-			$(active_img).attr("src",tmp);
+			$("#layer_alt_image_btn").text( ( layer_alt_image_active ) ? "original back" : "alternative back" );
+			
+			set_active_layer_img();
 		}
 		
 		function exec_active_function() {
@@ -476,6 +484,8 @@
 			active_components_dialog_updates = true;
 			
 			active_layer = selected_layer;
+			
+			set_active_layer_img();
 			
 			if( active_layer==0 ) {
 				
@@ -573,7 +583,7 @@
 			active_function = 1;
 			active_value = value;
 			
-			active_img.src = ( active_layer==0 ) ? rootdir_pcbdata+'/TopView.png' : rootdir_pcbdata+'/BottomView.png';
+			active_img.src = active_layer_img;
 			active_img.onload = function(){
 				
 				canvas_width = Math.floor(active_img.width/zoom);
@@ -598,7 +608,7 @@
 			
 			active_function = 0;
 			
-			active_img.src = ( active_layer==0 ) ? rootdir_pcbdata+'/TopView.png' : rootdir_pcbdata+'/BottomView.png';
+			active_img.src = active_layer_img;
 			active_img.onload = function(){
 				
 				canvas_width = Math.floor(active_img.width/zoom);
@@ -696,6 +706,10 @@
 			}	
 			$("#loader").fadeIn();
 			
+			
+			// set active image
+			set_active_layer_img();
+			
 			//preload images..
 			$(active_img).attr({ src: rootdir_pcbdata+'/TopView.png' }).load(function() { });
 			
@@ -715,6 +729,9 @@
 			if( layer_image_cnt==2 ) {
 				
 				$("#switch_layer_image_btn").show();
+				
+				$(tmp_img).attr({ src: rootdir_pcbdata+'/TopView_alt.png' });
+				$(tmp_img).attr({ src: rootdir_pcbdata+'/BottomView_alt.png' });
 			}
 			else {
 				
@@ -771,7 +788,7 @@
 
 		<select id=component_values onchange=prepare_plot_multi_components()></select>	
 		<button id=blink_toggle_btn onclick=blink_toggle()>blink</button>	
-		<button id=switch_layer_image_btn onclick=switch_layer_image()>traces</button>	
+		<button id=layer_alt_image_btn onclick=layer_alt_image_toggle()>alternative back</button>	
 	</div>
 	<div id=bottombar>
 		<span id=credits>

@@ -25,10 +25,10 @@ This make it easy to build a DIY project.
 
 <u>Optional files</u>
 
-- pcbdata/[project_folder]/BottomView2.png
-  *Second bottom picture of the PCB with traces for example*
-- pcbdata/[project_folder]/TopView2.png
-  *Second top picture of the PCB with traces for example*
+- pcbdata/[project_folder]/BottomView_alt.png
+  *Alternative bottom picture of the PCB with traces for example*
+- pcbdata/[project_folder]/TopView_alt.png
+  *Alternative top picture of the PCB with traces for example*
 
 
 
