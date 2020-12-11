@@ -99,7 +99,7 @@
 		 
 		 $GLOBALS['config']['layer_image_cnt'] = 1;
 		 
-		 if( file_exists($GLOBALS['config']['rootdir_pcbdata']."/BottomView2.png") && file_exists($GLOBALS['config']['rootdir_pcbdata']."/TopView2.png") ) {
+		 if( file_exists($GLOBALS['config']['rootdir_pcbdata']."/BottomView_alt.png") && file_exists($GLOBALS['config']['rootdir_pcbdata']."/TopView_alt.png") ) {
 			 
 			 $GLOBALS['config']['layer_image_cnt'] = 2;
 		 }
