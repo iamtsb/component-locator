@@ -5,8 +5,8 @@
 	 *
 	 * Written & released by M.F. Wieland (TSB)
 	 *
-	 * Version 1.4
-	 * Release date: 10-12-2020
+	 * Version 1.41
+	 * Release date: 11-12-2020
 	 *
 	 * This project has initially been created for John "Chucky" Hertell
 	 *  
@@ -15,5 +15,5 @@
 	 * This file is part of the Component Locator Chucky
 	 */
 
-	$version = '1.4';
+	$version = '1.41';
 ?>

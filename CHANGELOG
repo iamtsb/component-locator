@@ -1,3 +1,8 @@
+v1.41 - 11-12-2020
+=================
+~ changed second image tags to alternative image.
+~ bug fixes: some options restore second alternative image to original image.
+
 v1.4 - 10-12-2020
 =================
 + added second image option to switch between 2 images for the same layer. For example: normal image and image with only traces.

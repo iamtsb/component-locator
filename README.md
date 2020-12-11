@@ -1,6 +1,6 @@
 # **Component Locator Chucky** 
 
-version 1.4 - by M.F. Wieland (TSB)
+version 1.41 - by M.F. Wieland (TSB)
 
 
 
