@@ -31,14 +31,42 @@
 	 */
 	include('version.inc.php');
 
+	function h($value) {
+		
+		return htmlspecialchars((string)$value, ENT_QUOTES, 'UTF-8');
+	}
+
+	function js_json($value) {
+		
+		return json_encode($value, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP);
+	}
+
+	function html_json($value) {
+		
+		return h(js_json($value));
+	}
+
+	function redirect_to_index() {
+		
+		header('Location: index.php', true, 302);
+		exit;
+	}
+
 	/*
 	 * Check if all files exists
 	 */
-	$GLOBALS['config']['rootdir_pcbdata'] = 'pcbdata/'.$_GET['project'];
-
-	if( !file_exists($GLOBALS['config']['rootdir_pcbdata'].'/config.inc.php') ) {
+	$project = isset($_GET['project']) ? (string)$_GET['project'] : '';
+	if( !preg_match('/\A[A-Za-z0-9_-]+\z/', $project) ) {
 		
-		header('location: index.php');
+		redirect_to_index();
+	}
+	
+	$GLOBALS['config']['project_id'] = $project;
+	$GLOBALS['config']['rootdir_pcbdata'] = 'pcbdata/'.$project;
+
+	if( !is_dir($GLOBALS['config']['rootdir_pcbdata']) || !file_exists($GLOBALS['config']['rootdir_pcbdata'].'/config.inc.php') ) {
+		
+		redirect_to_index();
 	}
 	
 	$file_errors = 0;
@@ -55,7 +83,7 @@
 		if(!file_exists($filename) || !is_readable($filename)) {
 			
 			$file_errors++;
-			$errors.= "- $filename<br>";
+			$errors.= "- ".h($filename)."<br>";
 			
 		}
 	}
@@ -142,6 +170,8 @@
 					$content = str_replace(array('*',' '),'',$m[0][0])."\n".$content;
 					
 					// parse data
+					$header = false;
+					$data = array();
 					$Data = str_getcsv($content, "\n"); //parse the rows 
 					foreach($Data as &$row) {
 						
@@ -149,8 +179,8 @@
 						
 						if(!$header)
 							$header = str_getcsv($row, ";"); 
-						else
-						$data[] = array_combine($header, $rowData);
+						else if( count($header)==count($rowData) )
+							$data[] = array_combine($header, $rowData);
 					}
 					
 					return $data;
@@ -172,6 +202,8 @@
 					$content = preg_replace("/^#.*$(?:\r\n|\n)?/im","",$content);
 					
 					// parse data
+					$header = false;
+					$data = array();
 					$Data = str_getcsv($content, "\n"); //parse the rows 
 					foreach($Data as &$row) {
 						
@@ -185,7 +217,8 @@
 						}
 						else {
 							
-							$data[] = array_combine($header, $rowData);
+							if( count($header)==count($rowData) )
+								$data[] = array_combine($header, $rowData);
 						}
 					}
 					
@@ -200,20 +233,37 @@
 	function get_layer_data( $layer='Top' ) {
 		
 		$csv = component_parser($GLOBALS['config']['rootdir_pcbdata'].'/components.txt');
+		if( !is_array($csv) ) {
+			
+			return array('', '', array());
+		}
 		
-		$tpl = '<option value=\'{"x":%s,"y":%s,"rot":"%s","value":"%s","name":"%s"}\'>%s</option>\n';
+		$valuesComponentValues = '';
+		$component_types = '';
+		$values = array();
+		$dataCollected = array();
+		
 		foreach( $csv as $data ) {
 			
 			if( $data['Name']!='' && $data['Pos-X']!='' && $data['Pos-Y']!='' && $data['Pos-X']!='---' && $data['Pos-Y']!='---' && $data['Layer']==$layer && $data['Value']!='' ) {
 				
-				$valuesComponentValues.= sprintf($tpl, $data['Pos-X'], $data['Pos-Y'], str_replace('R','',$data['Rot']), $data['Value'], $data['Name'], $data['Name']);
+				$valuesComponentValues.= sprintf(
+					"<option value='%s'>%s</option>\n",
+					html_json(array(
+						'x' => (float)$data['Pos-X'],
+						'y' => (float)$data['Pos-Y'],
+						'rot' => str_replace('R','',$data['Rot']),
+						'value' => $data['Value'],
+						'name' => $data['Name']
+					)),
+					h($data['Name'])
+				);
 			}
 		}
 		
 		/*
 		 * Create component data array
 		 */ 
-		$tpl = '<option value=\'{"x":%s,"y":%s,"rot":"%s","value":"%s","name":"%s"}\'>%s</option>\n';
 		foreach( $csv as $data ) {
 			
 			if( $data['Name']!='' && $data['Pos-X']!='' && $data['Pos-Y']!='' && $data['Pos-X']!='---' && $data['Pos-Y']!='---' && $data['Layer']==$layer && $data['Value']!='' ) {
@@ -221,6 +271,10 @@
 				// filter component code letter(s)
 				$pattern = '/^[A-Za-z]+/';
 				preg_match($pattern, $data['Name'], $matches, PREG_OFFSET_CAPTURE);
+				if( !isset($matches[0][0]) ) {
+					
+					continue;
+				}
 				$key_val = $matches[0][0];
 				
 				if( $key_val=='E' ) {
@@ -242,7 +296,6 @@
 		/*
 		 * Create component category array
 		 */ 
-		$tpl = '<option value=\'%s\'>%s</option>\n';
 		$others=0;
 		foreach( $dataCollected as $key=>$data ) {
 			
@@ -270,13 +323,19 @@
 					default   : $value = 'Various'; $key='Various'; if( $others>0 ) { $skip=true; } $others++; 
 					
 				}
-				if( $skip==false ) $component_types.= sprintf($tpl, $key, $value);
+				if( $skip==false ) $component_types.= sprintf("<option value='%s'>%s</option>\n", h($key), h($value));
 				
 				foreach( $data as $key2=>$data_array ) {
 					
 					foreach( $data_array as $d2 ) {
 						
-						$values[$key][$key2][] = '{"value":"'.$d2[0].'", "x":'.$d2[1].', "y":'.$d2[2].', "rot":"'.$d2[3].'", "name":"'.$d2[4].'"}';
+						$values[$key][$key2][] = js_json(array(
+							'value' => $d2[0],
+							'x' => (float)$d2[1],
+							'y' => (float)$d2[2],
+							'rot' => $d2[3],
+							'name' => $d2[4]
+						));
 					}
 				}
 		}
@@ -287,12 +346,12 @@
 	$data_top = get_layer_data('Top');
 	$component_values_top = $data_top[0];
 	$component_types_top = $data_top[1];
-	$values_js_top =  json_encode( $data_top[2] );
+	$values_js_top =  js_json( $data_top[2] );
 
 	$data_bottom = get_layer_data('Bottom');
 	$component_values_bottom = $data_bottom[0];
 	$component_types_bottom = $data_bottom[1];
-	$values_js_bottom =  json_encode( $data_bottom[2] );
+	$values_js_bottom =  js_json( $data_bottom[2] );
 	
 ?>
 
@@ -311,7 +370,7 @@
 
 	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
 	
-	<title>Component Locator Chucky - <?php echo $project_name; ?></title>
+	<title>Component Locator Chucky - <?php echo h($project_name); ?></title>
 
 	<link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
 	<script src="https://code.jquery.com/jquery-1.12.4.js"></script>
@@ -346,11 +405,11 @@
 		// canvas 
 		var canvas, ctx;
 		
-		var x_correction_top = <?php echo $GLOBALS['config']['x_correction_top']; ?>;
-		var y_correction_top = <?php echo $GLOBALS['config']['y_correction_top']; ?>;
+		var x_correction_top = <?php echo (float)$GLOBALS['config']['x_correction_top']; ?>;
+		var y_correction_top = <?php echo (float)$GLOBALS['config']['y_correction_top']; ?>;
 
-		var x_correction_bottom = <?php echo $GLOBALS['config']['x_correction_bottom']; ?>;
-		var y_correction_bottom = <?php echo $GLOBALS['config']['y_correction_bottom']; ?>;
+		var x_correction_bottom = <?php echo (float)$GLOBALS['config']['x_correction_bottom']; ?>;
+		var y_correction_bottom = <?php echo (float)$GLOBALS['config']['y_correction_bottom']; ?>;
 
 		var dot_size = 12;
 		var dot_color = '#F72229';
@@ -366,14 +425,15 @@
 		
 		var active_img = new Image();
 
-		var image_dpi = <?php echo $GLOBALS['config']['image_dpi']; ?>;
-		var default_zoom = <?php echo $GLOBALS['config']['default_zoom']; ?>;
+		var image_dpi = <?php echo (float)$GLOBALS['config']['image_dpi']; ?>;
+		var default_zoom = <?php echo (int)$GLOBALS['config']['default_zoom']; ?>;
 		var zoom = default_zoom;
 		
 		var active_layer = 0; //0=top 1=bottom
 		var active_layer_img = "";
-		var layer_image_cnt = <?php echo $GLOBALS['config']['layer_image_cnt']; ?>;
+		var layer_image_cnt = <?php echo (int)$GLOBALS['config']['layer_image_cnt']; ?>;
 		var layer_alt_image_active = 0;
+		var view_rotation = 0;
 		
 		var active_function = 0; //0=doPlotAll, 1=doPlot
 		
@@ -383,15 +443,21 @@
 		var blink_interval_time = 800;
 		var blink_color = 'Grey';
 		
-		var values_top = <?php echo "$values_js_top;"; ?>;
-		var values_bottom = <?php echo "$values_js_bottom;"; ?>;
+		var values_top = <?php echo $values_js_top; ?>;
+		var values_bottom = <?php echo $values_js_bottom; ?>;
 		
 		var active_component_type = 'C';
 		var active_components_dialog_updates = true;
 		
 		var total_components_selected = 0;
+		var after_plot_callback = false;
 		
-		var rootdir_pcbdata = '<?php echo $GLOBALS['config']['rootdir_pcbdata'];?>';
+		var rootdir_pcbdata = <?php echo js_json($GLOBALS['config']['rootdir_pcbdata']); ?>;
+
+		function escape_html( value ) {
+			
+			return $('<div>').text(value).html();
+		}
 		
 		var clicked = false, click_x, click_y;
 		$(document).on({
@@ -515,9 +581,133 @@
 			}
 			else {
 				
+				zoom_val = parseFloat(zoom_val);
+				if( isNaN(zoom_val) ) {
+					
+					return;
+				}
 				zoom = zoom_val;
 			}
+			zoom = clamp_zoom(zoom);
 			exec_active_function();
+		}
+
+		function minimum_image_height() {
+			
+			var reserved_height = $("#toolbar").outerHeight() + $("#bottombar").outerHeight();
+			
+			return Math.max(100, window.innerHeight - reserved_height);
+		}
+
+		function max_zoom_for_screen_height() {
+			
+			if( !active_img.height || !active_img.width ) {
+				
+				return 8;
+			}
+			
+			var image_height = ( view_rotation%180==0 ) ? active_img.height : active_img.width;
+			
+			return image_height / minimum_image_height();
+		}
+
+		function clamp_zoom( zoom_val ) {
+			
+			var max_zoom = max_zoom_for_screen_height();
+			
+			return Math.min(max_zoom, Math.max(0.1, zoom_val));
+		}
+
+		function finish_plot() {
+			
+			if( after_plot_callback ) {
+				
+				after_plot_callback();
+				after_plot_callback = false;
+			}
+		}
+
+		function ctrl_wheel_zoom( e ) {
+			
+			if( !e.ctrlKey || !active_img.width ) {
+				
+				return;
+			}
+			
+			e.preventDefault();
+			
+			var canvas_offset = $("#locatorCanvas").offset();
+			var image_x = ($(window).scrollLeft() + e.clientX - canvas_offset.left) * zoom;
+			var image_y = ($(window).scrollTop() + e.clientY - canvas_offset.top) * zoom;
+			var zoom_step = ( e.deltaY<0 ) ? 0.9 : 1.1;
+			
+			zoom = clamp_zoom(zoom * zoom_step);
+			$("#zoom_val").val("custom");
+			
+			after_plot_callback = function() {
+				
+				$(window).scrollLeft(Math.max(0, (image_x / zoom) + canvas_offset.left - e.clientX));
+				$(window).scrollTop(Math.max(0, (image_y / zoom) + canvas_offset.top - e.clientY));
+			};
+			
+			exec_active_function();
+		}
+
+		function shift_wheel_rotate( e ) {
+			
+			if( !e.shiftKey || e.ctrlKey || !active_img.width ) {
+				
+				return false;
+			}
+			
+			e.preventDefault();
+			
+			view_rotation = ( view_rotation + ( e.deltaY<0 ? 90 : -90 ) + 360 ) % 360;
+			zoom = clamp_zoom(zoom);
+			
+			exec_active_function();
+			
+			return true;
+		}
+
+		function handle_wheel_shortcuts( e ) {
+			
+			if( shift_wheel_rotate(e) ) {
+				
+				return;
+			}
+			
+			ctrl_wheel_zoom(e);
+		}
+
+		function prepare_canvas_for_plot( image_width, image_height ) {
+			
+			var rotation = view_rotation % 360;
+			var rotated_width = ( rotation%180==0 ) ? image_width : image_height;
+			var rotated_height = ( rotation%180==0 ) ? image_height : image_width;
+			
+			canvas_width = Math.floor(rotated_width);
+			canvas_height = Math.floor(rotated_height);
+			
+			ctx.canvas.width = canvas_width;
+			ctx.canvas.height = canvas_height + $("#bottombar").height();
+			ctx.setTransform(1, 0, 0, 1, 0, 0);
+			
+			if( rotation==90 ) {
+				
+				ctx.translate(canvas_width, 0);
+				ctx.rotate(Math.PI/2);
+			}
+			else if( rotation==180 ) {
+				
+				ctx.translate(canvas_width, canvas_height);
+				ctx.rotate(Math.PI);
+			}
+			else if( rotation==270 ) {
+				
+				ctx.translate(0, canvas_height);
+				ctx.rotate(Math.PI*1.5);
+			}
 		}
 		
 		function set_dot_color( color_val ) {
@@ -546,7 +736,7 @@
 			x = Math.abs( Math.floor( (((x+x_correction+0.25)*inch)*dpi )/zoom));
 			y = Math.abs( Math.floor( (((y+y_correction)*inch)*dpi )/zoom));
 			
-			var txt = (cName!='') ? 'Current part: ' +cName + ' / '+cVal : 'Current parts ( <span onclick=show_popup()>'+total_components_selected+' )</span> : ' +cVal;
+			var txt = (cName!='') ? 'Current part: ' +escape_html(cName) + ' / '+escape_html(cVal) : 'Current parts ( <span onclick=show_active_components()>'+total_components_selected+' )</span> : ' +escape_html(cVal);
 			$("#currentValue").html(txt);
 			
 			ctx.beginPath();
@@ -586,21 +776,17 @@
 			active_img.src = active_layer_img;
 			active_img.onload = function(){
 				
-				canvas_width = Math.floor(active_img.width/zoom);
-				canvas_height = Math.floor(active_img.height/zoom);
-				
-				ctx.canvas.width = canvas_width;
-				ctx.canvas.height = canvas_height;
-				
-				//add bottom bar height to canvas height
-				ctx.canvas.height+= $("#bottombar").height();
+				var image_width = Math.floor(active_img.width/zoom);
+				var image_height = Math.floor(active_img.height/zoom);
+				prepare_canvas_for_plot(image_width, image_height);
 
-				ctx.drawImage(active_img, 0, 0,active_img.width/zoom,active_img.height/zoom);
+				ctx.drawImage(active_img, 0, 0,image_width,image_height);
 				var obj = jQuery.parseJSON( value );
 				
 				highlight_component(obj.x,obj.y,obj.name,obj.value,true);
 				
 				total_components_selected = 0;
+				finish_plot();
 			}
 		}
 		
@@ -611,16 +797,11 @@
 			active_img.src = active_layer_img;
 			active_img.onload = function(){
 				
-				canvas_width = Math.floor(active_img.width/zoom);
-				canvas_height = Math.floor(active_img.height/zoom);
+				var image_width = Math.floor(active_img.width/zoom);
+				var image_height = Math.floor(active_img.height/zoom);
+				prepare_canvas_for_plot(image_width, image_height);
 				
-				ctx.canvas.width = canvas_width;
-				ctx.canvas.height = canvas_height;
-				
-				//add bottom bar height to canvas height
-				ctx.canvas.height+= $("#bottombar").height();
-				
-				ctx.drawImage(active_img, 0, 0,canvas_width,canvas_height);
+				ctx.drawImage(active_img, 0, 0,image_width,image_height);
 				
 				var component_value = $("#component_values").val();
 				var values = ( active_layer==0 ) ? values_top : values_bottom;
@@ -640,13 +821,14 @@
 									var obj = jQuery.parseJSON( value );
 									total_components_selected++;
 									highlight_component(obj.x,obj.y,'',obj.value,false);
-									active_components+= '<input type="checkbox"> '+obj.name+' ('+obj.value+')'+'<br />';
+									active_components+= '<input type="checkbox"> '+escape_html(obj.name)+' ('+escape_html(obj.value)+')'+'<br />';
 								});
 							}
 						});
 					}
 				});
 				if( active_components_dialog_updates )	$( "#highlighted_components_dialogs" ).html(active_components);
+				finish_plot();
 			}
 		}		
 		
@@ -669,7 +851,7 @@
 					
 					$.each(value, function (index, value) {
 							
-						$('#component_values').append('<option value="'+index+'">'+index+'</option>');
+						$('#component_values').append($('<option>').val(index).text(index));
 					});
 				}
 			});
@@ -704,6 +886,9 @@
 				
 				ctx = canvas.getContext("2d");
 			}	
+			
+			document.addEventListener('wheel', handle_wheel_shortcuts, { passive: false });
+			
 			$("#loader").fadeIn();
 			
 			
@@ -759,6 +944,7 @@
 
 		Zoom:
 		<select id=zoom_val onchange=set_zoom(this.value)>
+			<option value='custom' style='display:none'>Custom</option>
 			<option value='0'>Fit to window</option>
 			<option value='1'>100%</option>
 			<option value='2'>50%</option>
@@ -793,10 +979,10 @@
 	<div id=bottombar>
 		<span id=credits>
 			<?php 
-				echo $GLOBALS['config']['project_name'];
-				echo $GLOBALS['config']['project_engineer'];
+				echo h($GLOBALS['config']['project_name']);
+				echo h($GLOBALS['config']['project_engineer']);
 			?> 
-			Component Locator Chucky <?php echo $version;?> - by TSB ( M.F. Wieland ) - (c) 2018-2020
+			Component Locator Chucky <?php echo h($version);?> - by TSB ( M.F. Wieland ) - (c) 2018-2020
 		</span>
 		<span id=currentValue>##</span>
 	</div>

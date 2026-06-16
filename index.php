@@ -24,6 +24,11 @@
 	
 	include('version.inc.php');
 
+	function h($value) {
+		
+		return htmlspecialchars((string)$value, ENT_QUOTES, 'UTF-8');
+	}
+
 ?>
 
 <!DOCTYPE HTML>
@@ -72,20 +77,23 @@
 	
 	<script>
 
-		var options;
+		var selected_project = "";
+		var selected_project_url = "";
 	
 		function open_project( ) {
 			
-			window.location = 'locator.php?project='+options[0];
+			window.location = 'locator.php?project='+encodeURIComponent(selected_project);
 		}
 		
 		function update_stuff() {
 			
+			var project_option = $("#project option:selected");
 			
-			options = $("#project").val().split(";");
+			selected_project = $("#project").val();
+			selected_project_url = project_option.attr("data-project-url") || "";
 		
-			$("#background").css('backgroundImage','url(pcbdata/'+options[0]+'/TopView.png)');
-			if( options[1]!='' ) 
+			$("#background").css('backgroundImage','url(pcbdata/'+selected_project+'/TopView.png)');
+			if( selected_project_url!='' ) 
 				$("#projecpage_btn").show();
 			else 
 				$("#projecpage_btn").hide();
@@ -94,7 +102,7 @@
 		
 		function open_project_page(){
 			
-			window.open(options[1]);
+			window.open(selected_project_url, '_blank', 'noopener');
 		}
 		
 		$(window).ready( function() {
@@ -117,7 +125,7 @@
 
 <div id=loader>
 	<center>
-		<h1>Component Locator Chucky <?php echo $version;?></h1>
+		<h1>Component Locator Chucky <?php echo h($version);?></h1>
 		<h3>Select project</h3>
 		
 	
@@ -140,8 +148,14 @@
 		if( file_exists($configfile) ) {
 			
 			include($configfile);
-			$project = str_replace("pcbdata/","",$dirname);
-			echo "\t\t<option value=\"$project;$project_url\">$project_name</option>\n";
+			$project = basename($dirname);
+			if( !preg_match('/\A[A-Za-z0-9_-]+\z/', $project) ) {
+				
+				continue;
+			}
+			
+			$safe_project_url = (isset($project_url) && preg_match('/\Ahttps?:\/\//i', $project_url)) ? $project_url : '';
+			echo "\t\t<option value=\"".h($project)."\" data-project-url=\"".h($safe_project_url)."\">".h($project_name)."</option>\n";
 			
 		}
 	}
@@ -157,7 +171,7 @@
 </div>
 <div id=bottombar>
 	<span id=credits>
-		Component Locator Chucky<?php echo $version;?> - by TSB ( M.F. Wieland ) - (c) 2018-2020
+		Component Locator Chucky<?php echo h($version);?> - by TSB ( M.F. Wieland ) - (c) 2018-2020
 	</span>
 </div>
 
