@@ -982,7 +982,7 @@
 				echo h($GLOBALS['config']['project_name']);
 				echo h($GLOBALS['config']['project_engineer']);
 			?> 
-			Component Locator Chucky <?php echo h($version);?> - by TSB ( M.F. Wieland ) - (c) 2018-2020
+			Component Locator Chucky <?php echo h($version);?> - by TSB ( M.F. Wieland ) - (c) 2018-2026
 		</span>
 		<span id=currentValue>##</span>
 	</div>
