@@ -171,7 +171,7 @@
 </div>
 <div id=bottombar>
 	<span id=credits>
-		Component Locator Chucky<?php echo h($version);?> - by TSB ( M.F. Wieland ) - (c) 2018-2020
+		Component Locator Chucky<?php echo h($version);?> - by TSB ( M.F. Wieland ) - (c) 2018-2026
 	</span>
 </div>
 
